@@ -1,0 +1,86 @@
+OCTALDIGIT: "0..7"
+IDENT: LETTER ( LETTER | DECIMALDIGIT | "_" )*
+FULLIDENT: IDENT ( "." IDENT )*
+MESSAGENAME: IDENT
+ENUMNAME: IDENT
+FIELDNAME: IDENT
+ONEOFNAME: IDENT
+MAPNAME: IDENT
+SERVICENAME: IDENT
+RPCNAME: IDENT
+MESSAGETYPE: [ "." ] ( IDENT "." )* MESSAGENAME
+ENUMTYPE: [ "." ] ( IDENT "." )* ENUMNAME
+
+INTLIT    : DECIMALLIT | OCTALLIT | HEXLIT
+DECIMALLIT: ( "1".."9" ) ( DECIMALDIGIT )*
+OCTALLIT  : "0" ( OCTALDIGIT )*
+HEXLIT    : "0" ( "x" | "X" ) HEXDIGIT ( HEXDIGIT )*
+
+FLOATLIT: ( DECIMALS "." [ DECIMALS ] [ EXPONENT ] | DECIMALS EXPONENT | "."DECIMALS [ EXPONENT ] ) | "inf" | "nan"
+DECIMALS : DECIMALDIGIT ( DECIMALDIGIT )*
+EXPONENT : ( "e" | "E" ) [ "+" | "-" ] DECIMALS
+
+BOOLLIT: "true" | "false"
+
+STRLIT: ( "'" ( CHARVALUE )* "'" ) |  ( "\"" ( CHARVALUE )* "\"" )
+CHARVALUE: HEXESCAPE | OCTESCAPE | CHARESCAPE |  /[^\0\n\\]/
+HEXESCAPE: "\\" ( "x" | "X" ) HEXDIGIT HEXDIGIT
+OCTESCAPE: "\\" OCTALDIGIT OCTALDIGIT OCTALDIGIT
+CHARESCAPE: "\\" ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" )
+QUOTE: "'" | "\""
+
+EMPTYSTATEMENT: ";"
+
+CONSTANT: FULLIDENT | ( [ "-" | "+" ] INTLIT ) | ( [ "-" | "+" ] FLOATLIT ) | STRLIT | BOOLLIT
+
+syntax: "syntax" "=" QUOTE "proto3" QUOTE ";"
+
+import: "import" [ "weak" | "public" ] STRLIT ";"
+
+package: "package" FULLIDENT ";"
+
+option: "option" OPTIONNAME  "=" CONSTANT ";"
+OPTIONNAME: ( IDENT | "(" FULLIDENT ")" ) ( "." IDENT )*
+
+TYPE: "double" | "float" | "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" | "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string" | "bytes" | MESSAGETYPE | ENUMTYPE
+FIELDNUMBER: INTLIT
+
+field: TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";"
+fieldoptions: fieldoption ( ","  fieldoption )*
+fieldoption: OPTIONNAME "=" CONSTANT
+repeatedfield: "repeated" field
+
+oneof: "oneof" ONEOFNAME "{" ( oneoffield | EMPTYSTATEMENT )* "}"
+oneoffield: TYPE FIELDNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";"
+
+mapfield: "map" "<" KEYTYPE "," TYPE ">" MAPNAME "=" FIELDNUMBER [ "[" fieldoptions "]" ] ";"
+KEYTYPE: "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" | "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string"
+
+reserved: "reserved" ( ranges | fieldnames ) ";"
+ranges: range ( "," range )*
+range:  INTLIT [ "to" ( INTLIT | "max" ) ]
+fieldnames: FIELDNAME ( "," FIELDNAME )*
+
+enum: "enum" ENUMNAME enumbody
+enumbody: "{" ( option | enumfield | EMPTYSTATEMENT )* "}"
+enumfield: IDENT "=" INTLIT [ "[" enumvalueoption ( ","  enumvalueoption )* "]" ] ";"
+enumvalueoption: OPTIONNAME "=" CONSTANT
+
+message: "message" MESSAGENAME messagebody
+messagebody: "{" ( repeatedfield | field | enum | message | option | oneof | mapfield | reserved | EMPTYSTATEMENT )* "}"
+
+service: "service" SERVICENAME "{" ( option | rpc | EMPTYSTATEMENT )* "}"
+rpc: "rpc" RPCNAME "(" [ "stream" ] MESSAGETYPE ")" "returns" "(" [ "stream" ] MESSAGETYPE ")" ( ( "{" ( option | EMPTYSTATEMENT )* "}" ) | ";" )
+
+proto: syntax ( import | package | option | topleveldef | EMPTYSTATEMENT )*
+topleveldef: message | enum | service
+
+COMMENT: "//" /.*/
+
+%import common.HEXDIGIT
+%import common.DIGIT -> DECIMALDIGIT
+%import common.LETTER
+%import common.WS
+%import common.NEWLINE
+%ignore WS
+%ignore COMMENT

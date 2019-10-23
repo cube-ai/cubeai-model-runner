@@ -1,2 +1,6 @@
 # cubeai-model-runner
-CubeAI智立方模型运行器
+
+CubeAI模型运行器。
+
+基于acumos-model-runner改编。
+

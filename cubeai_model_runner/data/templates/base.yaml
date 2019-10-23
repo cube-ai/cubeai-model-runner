@@ -1,0 +1,52 @@
+{% from "method.yaml" import render_method %}
+swagger: "2.0"
+info:
+  description: "Provides an HTTP API for the CubeAI model '{{ model.name }}'"
+  version: 0.1.0
+  title: "{{ model.name }}"
+  termsOfService: "https://lfprojects.org/policies/terms-of-use/"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+tags:
+  - name: "methods"
+    description: "Access model methods"
+  - name: "artifacts"
+    description: "Access model artifacts"
+schemes:
+  - "http"
+paths:
+  /model/artifacts/metadata:
+    get:
+      tags:
+        - "artifacts"
+      summary: "Returns the CubeAI model metadata JSON"
+      operationId: "cubeai_model_runner.api.metadata"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: Success
+      externalDocs:
+        description: "See our model metadata schema repository for more information"
+        url: "https://gerrit.acumos.org/r/gitweb?p=model-schema.git;a=summary"
+  /model/artifacts/protobuf:
+    get:
+      tags:
+        - "artifacts"
+      summary: "Returns the CubeAI model protobuf data format specification"
+      operationId: "cubeai_model_runner.api.protobuf"
+      produces:
+        - "text/plain"
+      responses:
+        "200":
+          description: Success
+      externalDocs:
+        description: "See the protobuf language guide for more information"
+        url: "https://developers.google.com/protocol-buffers/docs/proto3"
+{% for method in methods %}{{ render_method(method) }}{% endfor %}
+definitions:
+{{ definitions|indent(2, True) }}
+externalDocs:
+  description: "Find out more about CubeAI"
+  url: "https://cubeai.dmpt.com/"
