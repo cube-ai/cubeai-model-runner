@@ -26,7 +26,7 @@ with open("README.md", "r", encoding='utf-8') as file:
 
 setup(
     name='cubeai_model_runner',
-    version='0.2.4',
+    version='0.2.5',
     author='cubeai',
     author_email='cubeai@163.com',
     description='CubeAI模型运行器',

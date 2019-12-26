@@ -19,6 +19,7 @@
 '''
 Provides a model runner based on a connexion application and gunicorn server
 '''
+import os
 import json
 import argparse
 from functools import partial
@@ -115,6 +116,8 @@ def _build_app(model_dir, cors):
     flask_app = connexion_app.app
     flask_app.model = load_model(model_dir)
     flask_app.model_dir = model_dir
+
+    os.system('mv /app/model/model/scripts/user_provided/* /app')  # 将用户文件移动到/app目录下
 
     try:
         flask_app.model.init_model_data._func.inner('')  # 初始化模型数据，例如从文件中装载预训练好的模型参数
