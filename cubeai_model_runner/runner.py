@@ -73,6 +73,7 @@ def create_app(model_dir, host, port, workers=1, timeout=120, cors=None):
     '''
     model_dir = abspath(model_dir)
     _write_oas(model_dir)
+    cors = '*'
     return StandaloneApplication(model_dir, host, port, workers, timeout, cors)
 
 
