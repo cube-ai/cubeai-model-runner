@@ -9,5 +9,3 @@ CubeAI模型运行器。
 使用pip安装:
 
     $ pip install cubeai_model_runner
-
-基于[acumos-model-runner](https://pypi.org/project/acumos-model-runner)改编。
